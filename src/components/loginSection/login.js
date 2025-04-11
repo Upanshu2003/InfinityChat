@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Planet from "../../assets/planet-bg.png";
 import { FcGoogle } from "react-icons/fc";
 import { HiEye, HiEyeOff } from "react-icons/hi";
-import { signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../backend/firebase.config";
 import { useNavigate } from "react-router-dom";
 
@@ -12,26 +12,17 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  useEffect(() => {
-    // Set up auth state persistence
-    setPersistence(auth, browserLocalPersistence);
-
-    // Set up auth state observer
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        navigate("/chat");
-      }
-    });
-
-    // Cleanup subscription
-    return () => unsubscribe();
-  }, [navigate]);
-
   const handleLogin = async (e) => {
     e.preventDefault(); 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      // Navigation will be handled by the auth state observer
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      // localStorage
+      localStorage.setItem('user', JSON.stringify({
+        uid: userCredential.user.uid,
+        email: userCredential.user.email,
+        isLoggedIn: true
+      }));
+      navigate("/chat");
     } catch (error) {
       console.error("Login Error:", error.message);
     }

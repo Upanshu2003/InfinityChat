@@ -5,18 +5,30 @@ export default function Chat() {
   const [input, setInput] = useState("");
   const [firstMessageSent, setFirstMessageSent] = useState(false);
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (!input.trim()) return;
-
+  
     if (!firstMessageSent) setFirstMessageSent(true);
-
-    setMessages([...messages, { text: input, sender: "user" }]);
+  
+    const userMessage = { text: input, sender: "user" };
+    setMessages([...messages, userMessage]);
     setInput("");
-
-    setTimeout(() => {
-      setMessages((prev) => [...prev, { text: "This is a bot response!", sender: "bot" }]);
-    }, 1000);
+  
+    try {
+      const res = await fetch("http://127.0.0.1:8000/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: input }),
+      });
+  
+      const data = await res.json();
+      setMessages((prev) => [...prev, { text: data.response, sender: "bot" }]);
+    } catch (error) {
+      console.error("Error:", error);
+      setMessages((prev) => [...prev, { text: "Failed to fetch bot reply.", sender: "bot" }]);
+    }
   };
+  
 
   return (
     <div className="flex flex-col h-screen bg-black text-white">

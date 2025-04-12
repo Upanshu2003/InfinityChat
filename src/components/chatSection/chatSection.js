@@ -4,31 +4,43 @@ export default function Chat() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [firstMessageSent, setFirstMessageSent] = useState(false);
+  const [imageUpload, setImageUpload] = useState(null);
 
   const sendMessage = async () => {
     if (!input.trim()) return;
   
-    if (!firstMessageSent) setFirstMessageSent(true);
-  
-    const userMessage = { text: input, sender: "user" };
-    setMessages([...messages, userMessage]);
+    const userMessage = { sender: "user", text: input };
+    setMessages((prev) => [...prev, userMessage]);
     setInput("");
+    setFirstMessageSent(true);
   
     try {
-      const res = await fetch("http://127.0.0.1:8000/chat", {
+      const res = await fetch("http://localhost:8000/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ message: input }),
       });
   
       const data = await res.json();
-      setMessages((prev) => [...prev, { text: data.response, sender: "bot" }]);
-    } catch (error) {
-      console.error("Error:", error);
-      setMessages((prev) => [...prev, { text: "Failed to fetch bot reply.", sender: "bot" }]);
+  
+      const botMessage = { sender: "bot", text: data.response };
+      setMessages((prev) => [...prev, botMessage]);
+    } catch (err) {
+      console.error("Failed to fetch response", err);
+      const errorMsg = { sender: "bot", text: "Something went wrong. Try again!" };
+      setMessages((prev) => [...prev, errorMsg]);
     }
   };
   
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageUpload(file);
+      // Optional: show a preview or send to backend
+    }
+  };
 
   return (
     <div className="flex flex-col h-screen bg-black text-white">
@@ -73,6 +85,19 @@ export default function Chat() {
 
       <div className="p-4">
         <div className="max-w-4xl mx-auto flex gap-2">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            className="hidden"
+            id="image-upload"
+          />
+          <label
+            htmlFor="image-upload"
+            className="p-4 bg-gray-700 text-white rounded-lg cursor-pointer"
+          >
+            📷
+          </label>
           <input
             type="text"
             className="flex-1 p-4 bg-gray-700 text-white rounded-lg outline-none focus:outline-none focus:ring-2 focus:ring-purple-500"

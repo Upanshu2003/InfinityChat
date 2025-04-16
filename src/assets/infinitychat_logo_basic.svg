@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 270 60" width="270" height="60">
+  <defs>
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#a044ff"/>
+      <stop offset="100%" stop-color="#3a0ca3"/>
+    </linearGradient>
+  </defs>
+
+  <text x="0" y="45" font-family="Segoe UI, sans-serif" font-size="48" font-weight="bold" fill="url(#textGradient)">
+    InfinityChat
+  </text>
+</svg>

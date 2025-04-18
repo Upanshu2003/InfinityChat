@@ -4,7 +4,7 @@ import LoginSection from '../src/components/loginSection/login';
 import RegisterSection from '../src/components/registerSection/registerSection';
 import Navbar from './components/navbar/navbar';
 import Home from './pages/home';
-import './backend/firebase.config';
+import Footer from './components/footer/footer';
 
 function App() {
   return (
@@ -16,6 +16,7 @@ function App() {
         <Route path="/login" element={<LoginSection />} />
         <Route path="/register" element={<RegisterSection />} />
       </Routes>
+      <Footer/>
     </Router>
   );
 }

@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Logo from "../../assets/infinitychat_logo_basic.svg"; 
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
-  // Check if user is logged in
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (user && user.isLoggedIn) {
@@ -16,7 +16,24 @@ export default function Navbar() {
     }
   }, []);
 
-  // Handle sign out
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash && location.pathname === '/') {
+      setTimeout(() => {
+        const element = document.getElementById(hash);
+        if (element) {
+          const offset = 80;
+          const elementPosition = element.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - offset;
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        }
+      }, 100);
+    }
+  }, [location]);
+
   const handleSignOut = () => {
     localStorage.removeItem('user');
     setIsLoggedIn(false);
@@ -24,10 +41,27 @@ export default function Navbar() {
     navigate('/');
   };
 
-  // Close mobile menu when navigating
   const handleNavigation = (path) => {
     setIsMobileMenuOpen(false);
     navigate(path);
+  };
+
+  const scrollToSection = (sectionId, isMobile = false) => {
+    if (location.pathname === '/') {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        const offset = 80;
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - offset;
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
+    } else {
+      navigate(`/#${sectionId}`);
+    }
+    if (isMobile) setIsMobileMenuOpen(false);
   };
 
   return (
@@ -35,7 +69,7 @@ export default function Navbar() {
       <div className="absolute inset-0 bg-black opacity-30"></div>
       <div className="relative flex justify-between items-center p-6">
         {/* Logo Placeholder */}
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 w-32">
           <img
             src={Logo}
             alt="InfinityChat Logo"
@@ -45,31 +79,31 @@ export default function Navbar() {
         </div>
 
         {/* Desktop Menu - Hidden on small screens */}
-        <div className="hidden md:flex space-x-6">
-          <a
-            href="/"
-            className="text-white text-lg hover:underline transition"
+        <div className="hidden md:flex space-x-6 absolute left-1/2 transform -translate-x-1/2">
+          <button
+            onClick={() => scrollToSection('features')}
+            className="text-white text-lg hover:text-purple-400 transition-colors duration-200"
           >
             Features
-          </a>
+          </button>
           <a
             href="/chat"
-            className="text-white text-lg hover:underline transition"
+            className="text-white text-lg hover:text-purple-400 transition-colors duration-200"
           >
             Chat
           </a>
-          <a
-            href="/about"
-            className="text-white text-lg hover:underline transition"
+          <button
+            onClick={() => scrollToSection('about')}
+            className="text-white text-lg hover:text-purple-400 transition-colors duration-200"
           >
             About
-          </a>
-          <a
-            href="/contact"
-            className="text-white text-lg hover:underline transition"
+          </button>
+          <button
+            onClick={() => scrollToSection('contact')}
+            className="text-white text-lg hover:text-purple-400 transition-colors duration-200"
           >
             Contact
-          </a>
+          </button>
         </div>
 
         {/* Authentication Section */}
@@ -111,7 +145,7 @@ export default function Navbar() {
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5">
                   <button
                     onClick={handleSignOut}
-                    className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 lg:ml-4"
                   >
                     Sign out
                   </button>
@@ -156,13 +190,12 @@ export default function Navbar() {
         {isMobileMenuOpen && (
           <div className="md:hidden fixed inset-0 top-20 bg-black bg-opacity-95 z-30 flex flex-col items-center pt-10">
             <div className="flex flex-col items-center space-y-6 w-full">
-              <a
-                href="/"
-                onClick={(e) => {e.preventDefault(); handleNavigation("/")}}
+              <button
+                onClick={() => scrollToSection('features', true)}
                 className="text-white text-xl hover:text-purple-500 transition"
               >
                 Features
-              </a>
+              </button>
               <a
                 href="/chat"
                 onClick={(e) => {e.preventDefault(); handleNavigation("/chat")}}
@@ -170,20 +203,18 @@ export default function Navbar() {
               >
                 Chat
               </a>
-              <a
-                href="/about"
-                onClick={(e) => {e.preventDefault(); handleNavigation("/about")}}
+              <button
+                onClick={() => scrollToSection('about', true)}
                 className="text-white text-xl hover:text-purple-500 transition"
               >
                 About
-              </a>
-              <a
-                href="/contact"
-                onClick={(e) => {e.preventDefault(); handleNavigation("/contact")}}
+              </button>
+              <button
+                onClick={() => scrollToSection('contact', true)}
                 className="text-white text-xl hover:text-purple-500 transition"
               >
                 Contact
-              </a>
+              </button>
               
               {/* Mobile Auth Buttons - Only shown for non-logged-in users */}
               {!isLoggedIn ? (

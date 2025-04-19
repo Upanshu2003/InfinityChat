@@ -1,16 +1,19 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ReactTyped } from "react-typed";
+import { useAuth } from "../../context/AuthContext";
+import { chatService } from "../../services/chatService";
 
 export default function Chat() {
   const [searchParams] = useSearchParams();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [firstMessageSent, setFirstMessageSent] = useState(false);
-  const [imageUpload, setImageUpload] = useState(null);
   const [isTyping, setIsTyping] = useState(false);
   const [currentTypingIndex, setCurrentTypingIndex] = useState(-1);
-  const [displayedText, setDisplayedText] = useState("");
+  const [chatId, setChatId] = useState(null);
+  const { user, login } = useAuth();
+
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -22,62 +25,91 @@ export default function Chat() {
   }, [messages]);
 
   useEffect(() => {
-    if (currentTypingIndex >= 0 && messages[currentTypingIndex]?.sender === "bot") {
-      setDisplayedText("");  // Reset displayed text when new message starts
-    }
-  }, [currentTypingIndex, messages]);
+    const loadPreviousChats = async () => {
+      if (!user) return;
 
-  const sendMessage = async (messageToSend = input) => {
-    if (!messageToSend.trim()) return;
-  
-    const userMessage = { sender: "user", text: messageToSend };
+      try {
+        const chats = await chatService.getUserChats(user.uid);
+        if (chats.length > 0) {
+          const lastChat = chats[chats.length - 1];
+          setMessages(lastChat.messages);
+          setChatId(lastChat.id);
+          setFirstMessageSent(true);
+        }
+      } catch (error) {
+        console.error("Error loading chats:", error);
+      }
+    };
+
+    loadPreviousChats();
+  }, [user]);
+
+  const sendMessage = useCallback(async (messageToSend = input) => {
+    if (!messageToSend.trim() || !user) return;
+
+    const userMessage = { sender: "user", text: messageToSend, timestamp: new Date() };
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
-    setFirstMessageSent(true);
     setIsTyping(true);
-  
+
     try {
-      const res = await fetch("http://localhost:8000/api/chat", {
+      let currentChatId = chatId;
+      const updatedMessages = [...messages, userMessage];
+
+      if (!firstMessageSent) {
+        currentChatId = await chatService.createNewChat(user.uid, userMessage);
+        setChatId(currentChatId);
+        setFirstMessageSent(true);
+      } else {
+        await chatService.updateChat(user.uid, currentChatId, updatedMessages);
+      }
+
+      const response = await fetch("http://localhost:8000/api/chat", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: messageToSend }),
       });
-  
-      const data = await res.json();
+
+      const data = await response.json();
+      const botMessage = { sender: "bot", text: data.response, timestamp: new Date() };
+
+      const newMessages = [...updatedMessages, botMessage];
+      setMessages(newMessages);
+      await chatService.updateChat(user.uid, currentChatId, newMessages);
+
       setIsTyping(false);
-      const botMessage = { sender: "bot", text: data.response };
-      setMessages((prev) => [...prev, botMessage]);
       setCurrentTypingIndex(messages.length + 1);
     } catch (err) {
-      console.error("Failed to fetch response", err);
+      console.error("Error:", err);
       setIsTyping(false);
       const errorMsg = { sender: "bot", text: "Something went wrong. Try again!" };
       setMessages((prev) => [...prev, errorMsg]);
     }
-  };
+  }, [input, messages, firstMessageSent, chatId, user]);
 
-  // Handle URL parameter message
   useEffect(() => {
-    const message = searchParams.get('message');
+    const message = searchParams.get("message");
     if (message) {
-      window.history.replaceState({}, '', '/chat');
+      window.history.replaceState({}, "", "/chat");
       setInput(message);
-      const timer = setTimeout(() => {
-        sendMessage(message);
-      }, 100);
+      const timer = setTimeout(() => sendMessage(message), 100);
       return () => clearTimeout(timer);
     }
-  }, []); // Run only once on mount
+  }, [searchParams, sendMessage]);
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImageUpload(file);
-      // Optional: show a preview or send to backend
-    }
-  };
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-b from-gray-900 to-black text-white">
+        <h2 className="text-2xl font-semibold text-gray-300 mb-4">Please login to continue</h2>
+        <button 
+          onClick={login}
+          className="px-6 py-2 bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors"
+        >
+          Login with Google
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-screen bg-gradient-to-b from-gray-900 to-black text-white pt-24">
@@ -89,43 +121,44 @@ export default function Chat() {
             </h2>
           </div>
         )}
-        
-        <div className="w-full max-w-4xl mx-auto">
-        {messages.map((msg, index) => (
-          <div
-            key={index}
-            className={`flex ${
-              msg.sender === "user" ? "justify-end" : "justify-start"
-            } px-4 py-2`}
-          >
-            <div className="max-w-3xl flex items-start gap-3 w-full">
-              {msg.sender === "bot" && (
-                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white flex items-center justify-center font-semibold shadow-lg">
-                  AI
-                </div>
-              )}
 
-              <div
-                className={`${
-                  msg.sender === "user"
-                    ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl rounded-br-none ml-auto shadow-lg p-4"
-                    : "text-gray-200"
-                } text-base whitespace-pre-line w-fit ${msg.sender === "bot" ? "pl-2" : ""}`}
-              >
-                {msg.sender === "bot" ? (
-                  <ReactTyped
-                    strings={[msg.text]}
-                    typeSpeed={30}
-                    showCursor={index === messages.length - 1}
-                    cursorChar="|"
-                  />
-                ) : (
-                  msg.text
+        <div className="w-full max-w-4xl mx-auto">
+          {messages.map((msg, index) => (
+            <div
+              key={index}
+              className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"} px-4 py-2`}
+            >
+              <div className="max-w-3xl flex items-start gap-3 w-full">
+                {msg.sender === "bot" && (
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white flex items-center justify-center font-semibold shadow-lg">
+                    AI
+                  </div>
                 )}
+                <div
+                  className={`${
+                    msg.sender === "user"
+                      ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl rounded-br-none ml-auto shadow-lg p-4"
+                      : "text-gray-200"
+                  } text-base whitespace-pre-line w-fit ${msg.sender === "bot" ? "pl-2" : ""}`}
+                >
+                  {msg.sender === "bot" ? (
+                    index === messages.length - 1 ? (
+                      <ReactTyped
+                        strings={[msg.text]}
+                        typeSpeed={30}
+                        showCursor={true}
+                        cursorChar="|"
+                      />
+                    ) : (
+                      msg.text
+                    )
+                  ) : (
+                    msg.text
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
           {isTyping && (
             <div className="flex justify-start px-4 py-2">
               <div className="max-w-3xl flex items-start gap-3 w-full">
@@ -134,9 +167,9 @@ export default function Chat() {
                 </div>
                 <div className="text-gray-200 p-4 text-base">
                   <div className="flex gap-2">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '200ms' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '400ms' }}></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "200ms" }}></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "400ms" }}></div>
                   </div>
                 </div>
               </div>
@@ -149,19 +182,6 @@ export default function Chat() {
       <div className="p-4 bg-gradient-to-t from-gray-900 to-transparent">
         <div className="max-w-4xl mx-auto flex gap-2">
           <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            className="hidden"
-            id="image-upload"
-          />
-          <label
-            htmlFor="image-upload"
-            className="p-4 bg-gray-700 hover:bg-gray-600 text-white rounded-lg cursor-pointer transition-colors shadow-lg"
-          >
-            📷
-          </label>
-          <input
             type="text"
             className="flex-1 p-4 bg-gray-700 text-white rounded-lg outline-none focus:outline-none focus:ring-2 focus:ring-purple-500 shadow-lg backdrop-blur-sm"
             placeholder="Send a message..."
@@ -169,7 +189,7 @@ export default function Chat() {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && sendMessage()}
           />
-          <button 
+          <button
             className="p-4 bg-gradient-to-r from-purple-700 to-purple-800 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 disabled:opacity-50 transition-all shadow-lg"
             onClick={sendMessage}
             disabled={!input.trim()}

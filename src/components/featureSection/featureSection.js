@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 
-const FeatureSection = () => {
+export default function FeatureSection() {
   const featureRefs = useRef([]);
 
   const features = [
@@ -31,6 +31,7 @@ const FeatureSection = () => {
   ];
 
   useEffect(() => {
+    const currentRefs = featureRefs.current;
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -40,12 +41,12 @@ const FeatureSection = () => {
       });
     }, { threshold: 0.1 });
 
-    featureRefs.current.forEach((ref) => {
+    currentRefs.forEach((ref) => {
       if (ref) observer.observe(ref);
     });
 
     return () => {
-      featureRefs.current.forEach((ref) => {
+      currentRefs.forEach((ref) => {
         if (ref) observer.unobserve(ref);
       });
     };
@@ -69,5 +70,3 @@ const FeatureSection = () => {
     </div>
   );
 };
-
-export default FeatureSection;

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useAuth } from "../../backend/hooks/AuthContext";
 import Planet from "../../assets/planet-bg.webp";
 import { FcGoogle } from "react-icons/fc";
 import { HiEye, HiEyeOff } from "react-icons/hi";
@@ -8,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login: authLogin } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -16,12 +18,12 @@ export default function Login() {
     e.preventDefault(); 
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      // localStorage
-      localStorage.setItem('user', JSON.stringify({
+      const userData = {
         uid: userCredential.user.uid,
         email: userCredential.user.email,
         isLoggedIn: true
-      }));
+      };
+      authLogin(userData);
       navigate("/chat");
     } catch (error) {
       console.error("Login Error:", error.message);

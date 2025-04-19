@@ -1,4 +1,6 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { ProtectedRoute } from './backend/hooks/ProtectedRoute';
 import ChatSection from '../src/components/chatSection/chatSection';
 import LoginSection from '../src/components/loginSection/login';
 import RegisterSection from '../src/components/registerSection/registerSection';
@@ -8,16 +10,25 @@ import Footer from './components/footer/footer';
 
 function App() {
   return (
-    <Router>
-     <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/chat" element={<ChatSection />} />
-        <Route path="/login" element={<LoginSection />} />
-        <Route path="/register" element={<RegisterSection />} />
-      </Routes>
-      <Footer/>
-    </Router>
+    <BrowserRouter>
+      <AuthProvider>
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<LoginSection />} />
+          <Route 
+            path="/chat" 
+            element={
+              <ProtectedRoute>
+                <ChatSection />
+              </ProtectedRoute>
+            } 
+          />
+          <Route path="/register" element={<RegisterSection />} />
+        </Routes>
+        <Footer/>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 

@@ -1,9 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 
-const AboutSection = () => {
+export default function AboutSection() {
   const sectionRef = useRef(null);
 
   useEffect(() => {
+    const currentRef = sectionRef.current;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -13,10 +14,14 @@ const AboutSection = () => {
       { threshold: 0.1 }
     );
 
-    if (sectionRef.current) observer.observe(sectionRef.current);
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
 
     return () => {
-      if (sectionRef.current) observer.unobserve(sectionRef.current);
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
     };
   }, []);
 
@@ -43,5 +48,3 @@ const AboutSection = () => {
     </div>
   );
 };
-
-export default AboutSection;

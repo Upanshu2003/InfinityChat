@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ReactTyped } from "react-typed";
-import { useAuth } from "../../context/AuthContext";
-import { chatService } from "../../services/chatService";
+import { useAuth } from "../../backend/hooks/AuthContext";
+import { chatService } from "../../backend/service/chatService";
 
 export default function Chat() {
   const [searchParams] = useSearchParams();

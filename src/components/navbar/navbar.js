@@ -66,7 +66,7 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 w-full z-40">
-      <div className="absolute inset-0 bg-black opacity-30"></div>
+      <div className="absolute inset-0 bg-black opacity-50"></div>
       <div className="relative flex justify-between items-center p-6">
         {/* Logo Placeholder */}
         <div className="flex-shrink-0 w-32">
@@ -78,20 +78,22 @@ export default function Navbar() {
           />
         </div>
 
-        {/* Desktop Menu - Hidden on small screens */}
+  
         <div className="hidden md:flex space-x-6 absolute left-1/2 transform -translate-x-1/2">
+          {location.pathname !== '/chat' && (
+            <a
+              href="/chat"
+              className="text-white text-lg hover:text-purple-400 transition-colors duration-200"
+            >
+              Chat
+            </a>
+          )}
           <button
             onClick={() => scrollToSection('features')}
             className="text-white text-lg hover:text-purple-400 transition-colors duration-200"
           >
             Features
           </button>
-          <a
-            href="/chat"
-            className="text-white text-lg hover:text-purple-400 transition-colors duration-200"
-          >
-            Chat
-          </a>
           <button
             onClick={() => scrollToSection('about')}
             className="text-white text-lg hover:text-purple-400 transition-colors duration-200"
@@ -106,9 +108,9 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Authentication Section */}
+   
         <div className="flex items-center">
-          {/* Desktop Auth Buttons - Hidden on small screens */}
+  
           {!isLoggedIn ? (
             <div className="hidden md:flex space-x-4">
               <button
@@ -126,7 +128,7 @@ export default function Navbar() {
             </div>
           ) : (
             <div className="hidden md:block relative">
-              {/* Avatar Button */}
+       
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="flex items-center focus:outline-none"
@@ -140,7 +142,7 @@ export default function Navbar() {
                 </svg>
               </button>
 
-              {/* Dropdown Menu */}
+
               {isDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5">
                   <button
@@ -154,7 +156,7 @@ export default function Navbar() {
             </div>
           )}
 
-          {/* Mobile Hamburger Menu Button */}
+
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="md:hidden text-purple-500 focus:outline-none"
@@ -186,7 +188,7 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Mobile Menu - Overlay */}
+
         {isMobileMenuOpen && (
           <div className="md:hidden fixed inset-0 top-20 bg-black bg-opacity-95 z-30 flex flex-col items-center pt-10">
             <div className="flex flex-col items-center space-y-6 w-full">
@@ -196,13 +198,15 @@ export default function Navbar() {
               >
                 Features
               </button>
-              <a
-                href="/chat"
-                onClick={(e) => {e.preventDefault(); handleNavigation("/chat")}}
-                className="text-white text-xl hover:text-purple-500 transition"
-              >
-                Chat
-              </a>
+              {location.pathname !== '/chat' && (
+                <a
+                  href="/chat"
+                  onClick={(e) => {e.preventDefault(); handleNavigation("/chat")}}
+                  className="text-white text-xl hover:text-purple-500 transition"
+                >
+                  Chat
+                </a>
+              )}
               <button
                 onClick={() => scrollToSection('about', true)}
                 className="text-white text-xl hover:text-purple-500 transition"
@@ -216,7 +220,6 @@ export default function Navbar() {
                 Contact
               </button>
               
-              {/* Mobile Auth Buttons - Only shown for non-logged-in users */}
               {!isLoggedIn ? (
                 <div className="flex flex-col space-y-4 mt-6 w-64">
                   <button

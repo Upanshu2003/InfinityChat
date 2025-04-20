@@ -1,4 +1,4 @@
-import { db } from '../backend/firebase.config';
+import { db } from '../firebase.config.js'; 
 import { collection, doc, getDocs, setDoc } from 'firebase/firestore';
 
 export const chatService = {

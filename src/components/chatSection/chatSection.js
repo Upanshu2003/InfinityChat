@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { ReactTyped } from "react-typed";
 import { useAuth } from "../../backend/hooks/AuthContext";
 import { chatService } from "../../backend/service/chatService";
+import MessageInput from "./MessageInput";
 
 export default function Chat() {
   const [searchParams] = useSearchParams();
@@ -10,14 +11,16 @@ export default function Chat() {
   const [input, setInput] = useState("");
   const [firstMessageSent, setFirstMessageSent] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const [currentTypingIndex, setCurrentTypingIndex] = useState(-1);
   const [chatId, setChatId] = useState(null);
   const { user, login } = useAuth();
 
+  const messagesContainerRef = useRef(null);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
   };
 
   useEffect(() => {
@@ -78,7 +81,6 @@ export default function Chat() {
       await chatService.updateChat(user.uid, currentChatId, newMessages);
 
       setIsTyping(false);
-      setCurrentTypingIndex(messages.length + 1);
     } catch (err) {
       console.error("Error:", err);
       setIsTyping(false);
@@ -113,7 +115,7 @@ export default function Chat() {
 
   return (
     <div className="flex flex-col h-screen bg-gradient-to-b from-gray-900 to-black text-white pt-24">
-      <div className="flex-1 overflow-y-auto bg-opacity-50">
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto bg-opacity-50">
         {!firstMessageSent && (
           <div className="flex items-center justify-center h-full">
             <h2 className="text-2xl font-semibold text-gray-300">
@@ -179,25 +181,16 @@ export default function Chat() {
         </div>
       </div>
 
-      <div className="p-4 bg-gradient-to-t from-gray-900 to-transparent">
-        <div className="max-w-4xl mx-auto flex gap-2">
-          <input
-            type="text"
-            className="flex-1 p-4 bg-gray-700 text-white rounded-lg outline-none focus:outline-none focus:ring-2 focus:ring-purple-500 shadow-lg backdrop-blur-sm"
-            placeholder="Send a message..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-          />
-          <button
-            className="p-4 bg-gradient-to-r from-purple-700 to-purple-800 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 disabled:opacity-50 transition-all shadow-lg"
-            onClick={sendMessage}
-            disabled={!input.trim()}
-          >
-            Send
-          </button>
-        </div>
-      </div>
+      <MessageInput 
+        user={user}
+        chatId={chatId}
+        messages={messages}
+        setMessages={setMessages}
+        firstMessageSent={firstMessageSent}
+        setFirstMessageSent={setFirstMessageSent}
+        setChatId={setChatId}
+        setIsTyping={setIsTyping}
+      />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Planet from "../../assets/planet-bg.png";
+import Planet from "../../assets/planet-bg.webp";
 import { FcGoogle } from "react-icons/fc";
 import { HiEye, HiEyeOff } from "react-icons/hi";
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -38,11 +38,10 @@ export default function Register() {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-[#02030a] overflow-hidden md:py-28">
-      <img src={Planet} alt="Planet Background" className="absolute top-0 right-0 w-[600px] opacity-40 pointer-events-none select-none" />
+    <div className="relative min-h-screen flex items-center justify-center bg-black overflow-hidden px-4 sm:px-6 md:py-28">
+          <img src={Planet} alt="Planet Background" className="absolute top-0 right-0 w-[600px] opacity-40 pointer-events-none select-none" />
 
-      {/* Register Card */}
-      <div className="z-10 bg-white bg-opacity-5 backdrop-blur-lg p-8 md:p-10 rounded-2xl shadow-xl border border-purple-800 max-w-md w-full space-y-6">
+      <div className=" z-10 bg-white bg-opacity-5 backdrop-blur-lg p-6 md:p-10 rounded-2xl shadow-xl border border-purple-800 w-full max-w-md mx-auto space-y-6">
         {!isEmailSent ? (
           <>
             <h2 className="text-3xl font-bold text-center text-white">Create Account</h2>

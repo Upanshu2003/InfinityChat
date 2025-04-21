@@ -33,22 +33,22 @@ const HeroSection = () => {
 
       <form onSubmit={handleSubmit} className="w-[90%] max-w-2xl mx-auto">
         <div className="flex gap-4">
-        <input
-  type="text"
-  value={inputValue}
-  onChange={(e) => setInputValue(e.target.value)}
-  placeholder="Ask anything..."
-  aria-label="Ask a question"
-  disabled={isLoading}
-  className={`w-full px-6 py-3 rounded-full 
-    border border-purple-700 
-    text-white placeholder-purple-200 
-    bg-white/5 backdrop-blur-md 
-    focus:outline-none focus:ring-4 focus:ring-purple-600 
-    transition-all duration-300
-    ${isLoading ? 'opacity-40 cursor-not-allowed' : 'opacity-90'}
-  `}
-/>
+          <input
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder="Ask anything..."
+            aria-label="Ask a question"
+            disabled={isLoading}
+            className={`w-full px-6 py-3 rounded-full 
+              border border-purple-700 
+              text-white placeholder-purple-200 
+              bg-white/5 backdrop-blur-md 
+              focus:outline-none focus:ring-4 focus:ring-purple-600 
+              transition-all duration-300
+              ${isLoading ? 'opacity-40 cursor-not-allowed' : 'opacity-90'}
+            `}
+          />
           <button
             type="submit"
             disabled={isLoading || !inputValue.trim()}

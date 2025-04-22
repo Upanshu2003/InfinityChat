@@ -38,7 +38,7 @@ const ContactSection = () => {
             href={contact.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-col items-center justify-center gap-4 p-6 rounded-xl bg-white/5 backdrop-blur-md border border-purple-800 shadow-lg transition-transform duration-300 hover:-translate-y-2 hover:shadow-purple-500/30"
+            className="flex flex-col items-center justify-center gap-4 p-6 rounded-xl bg-white/5 backdrop-blur-md border border-purple-800 shadow-lg transition-all duration-300 hover:-translate-y-3 hover:shadow-xl hover:shadow-purple-500 hover:border-purple-300 hover:scale-110"
           >
             {contact.icon}
             <span className="text-purple-100 font-medium">{contact.name}</span>

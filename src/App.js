@@ -16,7 +16,7 @@ function App() {
       <AuthProvider>
         <Navbar />
         <Routes>
-          <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          <Route path="/" element={<PublicRoute><Home /></PublicRoute>} />
           <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
           <Route path="/login" element={<PublicRoute><LoginSection /></PublicRoute>} />
           <Route path="/register" element={<PublicRoute><RegisterSection /></PublicRoute>} />

@@ -52,11 +52,11 @@ const HeroSection = () => {
           <button
             type="submit"
             disabled={isLoading || !inputValue.trim()}
-            className="rounded-full px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-700 hover:bg-purple-700 h active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-500 ease-in-out text-white font-medium whitespace-nowrap flex items-center gap-2 shadow-lg shadow-purple-500 hover:shadow-purple-500 transform hover:-translate-y-0.5"
+            className="rounded-full px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-900 h active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-500 ease-in-out text-white font-medium whitespace-nowrap flex items-center gap-2 shadow-lg shadow-purple-500 hover:shadow-purple-500 transform hover:-translate-y-0.5"
           >
             {isLoading ? (
               <>
-                <span className="animate-spin inline-block w-4 h-4 border-2 border-white/20 border-t-white rounded-full"></span>
+                <span className="animate-spin inline-block w-4 h-4 border-2  border-t-white rounded-full"></span>
                 Processing...
               </>
             ) : (

@@ -3,9 +3,10 @@ import { useAuth } from "../../backend/hooks/AuthContext";
 import Planet from "../../assets/planet-bg.webp";
 import { FcGoogle } from "react-icons/fc";
 import { HiEye, HiEyeOff } from "react-icons/hi";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../backend/firebase.config";
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, sendPasswordResetEmail } from "firebase/auth";
+import { auth, db } from "../../backend/firebase.config";
 import { useNavigate } from "react-router-dom";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -13,9 +14,12 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [resetEmailSent, setResetEmailSent] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault(); 
+    setError(""); // Clear previous errors
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const userData = {
@@ -26,7 +30,52 @@ export default function Login() {
       authLogin(userData);
       navigate("/chat");
     } catch (error) {
-      console.error("Login Error:", error.message);
+      setError("Invalid credentials");
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // Check if user already exists
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (!userDoc.exists()) {
+        // Create new user document if it doesn't exist
+        await setDoc(doc(db, "users", user.uid), {
+          name: user.displayName,
+          email: user.email,
+          uid: user.uid,
+        });
+      }
+      
+      const userData = {
+        uid: user.uid,
+        email: user.email,
+        name: userDoc.exists() ? userDoc.data().name : user.displayName,
+        isLoggedIn: true
+      };
+      
+      authLogin(userData);
+      navigate("/chat");
+    } catch (error) {
+      setError("Failed to sign in with Google");
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      setError("Please enter your email first");
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setResetEmailSent(true);
+      setError("");
+    } catch (error) {
+      setError("Failed to send reset email");
     }
   };
 
@@ -37,7 +86,11 @@ export default function Login() {
      
       <div className=" z-10 bg-white bg-opacity-5 backdrop-blur-lg p-6 md:p-10 rounded-2xl shadow-xl border border-purple-800 w-full max-w-md mx-auto space-y-6">
         <h2 className="text-3xl font-bold text-center text-white">Sign In</h2>
-
+        {error && (
+          <div className="bg-red-500 bg-opacity-10 border border-red-500 text-red-500 px-4 py-2 rounded-lg text-center">
+            {error}
+          </div>
+        )}
         <form onSubmit={handleLogin} className="space-y-4">
           <input
             type="email"
@@ -62,8 +115,14 @@ export default function Login() {
               {showPassword ? <HiEyeOff size={20} /> : <HiEye size={20} />}
             </button>
           </div>
-          <div className="text-right text-sm text-purple-400 hover:underline cursor-pointer">
-            Forgot Password?
+          <div className="text-right">
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              className="text-sm text-purple-400 hover:underline"
+            >
+              {resetEmailSent ? "Reset email sent!" : "Forgot Password?"}
+            </button>
           </div>
           <button
             type="submit"
@@ -73,7 +132,10 @@ export default function Login() {
           </button>
         </form>
 
-        <button className="w-full py-3 bg-white text-black rounded-lg flex items-center justify-center gap-3 hover:bg-gray-100 transition ">
+        <button 
+          className="w-full py-3 bg-white text-black rounded-lg flex items-center justify-center gap-3 hover:bg-gray-100 transition"
+          onClick={handleGoogleLogin}
+        >
           <FcGoogle size={24} />
           Sign in with Google
         </button>

@@ -36,10 +36,10 @@ export default function AboutSection() {
       </h2>
 
       <div className="mt-10 text-base md:text-lg text-purple-100 leading-relaxed bg-white/5 backdrop-blur-md rounded-2xl p-8 border border-purple-800 shadow-lg shadow-purple-900/30">
-        <p className="mb-6 text-center md:text-left">
+        <p className="mb-6 text-justify">
           Welcome to <span className="text-purple-400 font-semibold">InfinityChat</span>! This is a chat application that I built to provide a seamless communication experience for users. I've developed this platform using modern technologies to ensure smooth performance and an intuitive interface.
         </p>
-        <p className="text-center md:text-left">
+        <p className="text-justify">
           The goal of this project is to create a space where people can connect and communicate
           effectively. Whether you're here for casual conversations or professional networking, this
           platform has got you covered.

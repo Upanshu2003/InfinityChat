@@ -53,14 +53,14 @@ export default function FeatureSection() {
   }, []);
 
   return (
-    <div id="features" className="px-4 md:p-16 mb-6 bg-white bg-opacity-5 mx-4 md:mx-auto my-16 max-w-7xl rounded-2xl shadow-xl border border-purple-800 text-white">
+    <div id="features" className="px-4 py-14 md:p-16 mb-6 bg-white bg-opacity-5 mx-4 md:mx-auto my-16 max-w-7xl rounded-2xl shadow-xl border border-purple-800 text-white">
       <h2 className="text-center text-4xl mb-12 font-bold text-purple-300">Features</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
         {features.map((feature, index) => (
           <div
             key={index}
             ref={(el) => (featureRefs.current[index] = el)}
-            className="opacity-0 translate-y-6 transition-all duration-500 ease-out p-6 bg-black bg-opacity-30 border border-purple-500 backdrop-blur-md rounded-xl hover:scale-110 hover:border-purple-300 hover:shadow-lg hover:shadow-purple-500/20 transform-gpu"
+            className="opacity-0 translate-y-6 transition-all duration-500 ease-out p-6 bg-black bg-opacity-30 border border-purple-500 backdrop-blur-md rounded-xl hover:border-purple-300 hover:shadow-lg hover:shadow-purple-500/20 transform-gpu"
           >
             <h3 className="text-xl mb-3 text-purple-200 font-semibold">{feature.title}</h3>
             <p className="text-purple-100">{feature.description}</p>

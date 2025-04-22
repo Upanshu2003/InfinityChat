@@ -2,9 +2,9 @@ import { useState } from "react";
 import Planet from "../../assets/planet-bg.webp";
 import { FcGoogle } from "react-icons/fc";
 import { HiEye, HiEyeOff } from "react-icons/hi";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth, db } from "../../backend/firebase.config";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { sendEmailVerification } from "firebase/auth";
 
 export default function Register() {
@@ -14,10 +14,12 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isEmailSent, setIsEmailSent] = useState(false);
+  const [error, setError] = useState("");
 
   const handleRegister = async (e) => {
     e.preventDefault(); 
     setLoading(true);
+    setError(""); // Clear previous errors
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
@@ -31,7 +33,37 @@ export default function Register() {
       await sendEmailVerification(user);
       setIsEmailSent(true);       
     } catch (error) {
-      console.error("Registration Error:", error.message);
+      if (error.code === "auth/email-already-in-use") {
+        setError("User Already Exists");
+      } else {
+        setError("Something went wrong");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleRegister = async () => {
+    setLoading(true);
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (!userDoc.exists()) {
+   
+        await setDoc(doc(db, "users", user.uid), {
+          name: user.displayName,
+          email: user.email,
+          uid: user.uid,
+        });
+      }
+      
+      window.location.href = "/chat";
+    } catch (error) {
+      setError("Failed to sign up with Google");
     } finally {
       setLoading(false);
     }
@@ -45,6 +77,11 @@ export default function Register() {
         {!isEmailSent ? (
           <>
             <h2 className="text-3xl font-bold text-center text-white">Create Account</h2>
+            {error && (
+              <div className="bg-red-500 bg-opacity-10 border border-red-500 text-red-500 px-4 py-2 rounded-lg text-center">
+                {error}
+              </div>
+            )}
             <form onSubmit={handleRegister} className="space-y-4">
               <input
                 type="text"
@@ -86,7 +123,11 @@ export default function Register() {
               </button>
             </form>
 
-            <button className="w-full py-3 bg-white text-black rounded-lg flex items-center justify-center gap-3 hover:bg-gray-100 transition">
+            <button 
+              onClick={handleGoogleRegister}
+              disabled={loading}
+              className="w-full py-3 bg-white text-black rounded-lg flex items-center justify-center gap-3 hover:bg-gray-100 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
+            >
               <FcGoogle size={24} />
               Sign up with Google
             </button>

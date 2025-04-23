@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './backend/hooks/AuthContext';
-import { ProtectedRoute } from './backend/hooks/ProtectedRoute';
-import { PublicRoute } from './backend/hooks/PublicRoute';
+import { AuthProvider } from './hooks/AuthContext';
+import { ProtectedRoute } from './hooks/ProtectedRoute';
+import { PublicRoute } from './hooks/PublicRoute';
 import Chat from '../src/pages/chat';
 import LoginSection from '../src/components/loginSection/login';
 import RegisterSection from '../src/components/registerSection/registerSection';

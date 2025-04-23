@@ -4,16 +4,14 @@ from io import BytesIO
 
 def analyze_image(image_bytes):
     try:
-        # Convert image bytes to base64
+        
         image_b64 = base64.b64encode(image_bytes).decode('utf-8')
         
-        # Get image classification
         result = query_huggingface(
             "microsoft/resnet-50",
             {"image": image_b64}
         )
         
-        # Get NSFW detection
         nsfw_result = query_huggingface(
             "microsoft/resnet-50-nsfw",
             {"image": image_b64}

@@ -67,7 +67,7 @@ export default function Chat() {
         await chatService.updateChat(user.uid, currentChatId, updatedMessages);
       }
 
-      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000;
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 const response = await fetch(`${API_URL}/api/chat`, {
   method: "POST",

@@ -3,7 +3,7 @@ from ai.huggingface import query_huggingface
 
 def get_response(message: str):
     vibe = get_vibe(message)
-    model = "mistralai/Mixtral-8x7B-Instruct-v0.1"
+    model = "TheBloke/Mistral-7B-Instruct-v0.1-GGU"
 
     system_rules = (
         "You are a fictional friend who chats with empathy and personality. "
@@ -31,7 +31,7 @@ def get_response(message: str):
 
     if isinstance(response, list) and "generated_text" in response[0]:
         reply = response[0]["generated_text"].strip()
-        # Only keep response **after 'Friend:'**
+      
         if "Friend:" in reply:
             return reply.split("Friend:", 1)[-1].strip()
         return reply

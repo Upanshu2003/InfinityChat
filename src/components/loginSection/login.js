@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useAuth } from "../../backend/hooks/AuthContext";
+import { useAuth } from "../../hooks/AuthContext";
 import Planet from "../../assets/planet-bg.webp";
 import { FcGoogle } from "react-icons/fc";
 import { HiEye, HiEyeOff } from "react-icons/hi";
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, sendPasswordResetEmail } from "firebase/auth";
-import { auth, db } from "../../firebase.config.js";
+import { auth, db } from "../../firebase.config";
 import { useNavigate } from "react-router-dom";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 

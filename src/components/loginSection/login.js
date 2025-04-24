@@ -4,7 +4,7 @@ import Planet from "../../assets/planet-bg.webp";
 import { FcGoogle } from "react-icons/fc";
 import { HiEye, HiEyeOff } from "react-icons/hi";
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, sendPasswordResetEmail } from "firebase/auth";
-import { auth, db } from "../../backend/firebase.config";
+import { auth, db } from "../../firebase.config.js";
 import { useNavigate } from "react-router-dom";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
@@ -19,7 +19,7 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault(); 
-    setError(""); // Clear previous errors
+    setError(""); 
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const userData = {
@@ -40,10 +40,10 @@ export default function Login() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      // Check if user already exists
+
       const userDoc = await getDoc(doc(db, "users", user.uid));
       if (!userDoc.exists()) {
-        // Create new user document if it doesn't exist
+  
         await setDoc(doc(db, "users", user.uid), {
           name: user.displayName,
           email: user.email,

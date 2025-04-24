@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ReactTyped } from "react-typed";
-import { useAuth } from "../../backend/hooks/AuthContext";
-import { chatService } from "../../backend/service/chatService";
+import { useAuth } from "../../hooks/AuthContext";
+import { chatService } from "../../service/chatService";
 
 export default function Chat() {
   const [searchParams] = useSearchParams();
@@ -12,7 +12,6 @@ export default function Chat() {
   const [isTyping, setIsTyping] = useState(false);
   const [chatId, setChatId] = useState(null);
   const { user } = useAuth();
-  // Add a ref to track if we've processed the URL parameter
   const processedUrlMessage = useRef(false);
 
   const messagesContainerRef = useRef(null);

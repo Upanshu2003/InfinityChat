@@ -3,7 +3,7 @@ import Planet from "../../assets/planet-bg.webp";
 import { FcGoogle } from "react-icons/fc";
 import { HiEye, HiEyeOff } from "react-icons/hi";
 import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { auth, db } from "../../backend/firebase.config";
+import { auth, db } from "../../firebase.config";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { sendEmailVerification } from "firebase/auth";
 
@@ -19,7 +19,7 @@ export default function Register() {
   const handleRegister = async (e) => {
     e.preventDefault(); 
     setLoading(true);
-    setError(""); // Clear previous errors
+    setError(""); 
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;

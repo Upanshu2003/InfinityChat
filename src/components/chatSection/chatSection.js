@@ -67,12 +67,13 @@ export default function Chat() {
         await chatService.updateChat(user.uid, currentChatId, updatedMessages);
       }
 
-      const response = await fetch("http://localhost:8000/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: messageToSend }),
-      });
+      const API_URL = process.env.REACT_APP_API_URL;
 
+const response = await fetch(`${API_URL}/api/chat`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ message: messageToSend }),
+});
       const data = await response.json();
       const botMessage = { sender: "bot", text: data.response, timestamp: new Date() };
 
@@ -89,20 +90,13 @@ export default function Chat() {
     }
   }, [input, messages, firstMessageSent, chatId, user]);
 
-  // Fix for the URL parameter processing
   useEffect(() => {
     const message = searchParams.get("message");
     if (message && !processedUrlMessage.current && user) {
-      // Set the ref to true so we don't process this message again
       processedUrlMessage.current = true;
-      
-      // Clear the URL parameter without triggering a reload
       window.history.replaceState({}, "", "/chat");
-      
-      // Send the message
       sendMessage(message);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, user, sendMessage]);
 
   return (

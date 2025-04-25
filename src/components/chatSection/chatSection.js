@@ -67,21 +67,40 @@ export default function Chat() {
         await chatService.updateChat(user.uid, currentChatId, updatedMessages);
       }
 
-      const API_URL = process.env.REACT_APP_API_URL;
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+      
+      try {
+        const response = await fetch(`${API_URL}/api/chat`, {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify({ message: messageToSend }),
+        });
 
-const response = await fetch(`${API_URL}/api/chat`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ message: messageToSend }),
-});
-      const data = await response.json();
-      const botMessage = { sender: "bot", text: data.response, timestamp: new Date() };
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        
+        const botMessage = { sender: "bot", text: data.response, timestamp: new Date() };
 
-      const newMessages = [...updatedMessages, botMessage];
-      setMessages(newMessages);
-      await chatService.updateChat(user.uid, currentChatId, newMessages);
+        const newMessages = [...updatedMessages, botMessage];
+        setMessages(newMessages);
+        await chatService.updateChat(user.uid, currentChatId, newMessages);
 
-      setIsTyping(false);
+        setIsTyping(false);
+      } catch (err) {
+        console.error("Error:", err);
+        setIsTyping(false);
+        const errorMsg = { sender: "bot", text: "Something went wrong. Try again!" };
+        setMessages((prev) => [...prev, errorMsg]);
+      }
     } catch (err) {
       console.error("Error:", err);
       setIsTyping(false);

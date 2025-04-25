@@ -3,7 +3,7 @@ from ai.huggingface import query_huggingface
 
 def get_response(message: str):
     vibe = get_vibe(message)
-    model = "TheBloke/Mistral-7B-Instruct-v0.1-GGU"
+    model = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 
     system_rules = (
         "You are a fictional friend who chats with empathy and personality. "

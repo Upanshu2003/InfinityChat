@@ -117,7 +117,7 @@ export default function Register() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 bg-purple-700 hover:bg-purple-600 transition rounded-lg font-semibold disabled:bg-purple-900 disabled:cursor-not-allowed"
+                className="w-full py-3 text-white bg-purple-700 hover:bg-purple-600 transition rounded-lg font-semibold disabled:bg-purple-900 disabled:cursor-not-allowed"
               >
                 {loading ? "Registering..." : "Register"}
               </button>
